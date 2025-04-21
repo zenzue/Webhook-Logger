@@ -1,0 +1,10 @@
+services:
+  webhook:
+    build:
+      context: ./app
+    container_name: webhook_logger
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app/logs:/app/logs
+    restart: unless-stopped
